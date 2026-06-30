@@ -64,8 +64,8 @@ const TRIGGERED_REPLIES = [
 const LASTFM_USER = 'smushgoeman';
 
 // Fetch last played track from Last.fm
-async function getLastPlayed() {
-  const url = `https://ws.audioscrobbler.com/2.0/?method=user.getrecenttracks&user=${LASTFM_USER}&api_key=${process.env.LASTFM_API_KEY}&format=json&limit=1`;
+async function getLastPlayed(username) {
+  const url = `https://ws.audioscrobbler.com/2.0/?method=user.getrecenttracks&user=${username}&api_key=${process.env.LASTFM_API_KEY}&format=json&limit=1`;
   const res = await fetch(url);
   const data = await res.json();
   const track = data?.recenttracks?.track?.[0];
@@ -79,12 +79,24 @@ client.on('messageCreate', async (message) => {
   // Auto-message for one user (sent as DM with last played track)
   if (message.author.id === AUTO_MESSAGE_USER) {
     try {
-      const lastPlayed = await getLastPlayed();
+      const lastPlayed = await getLastPlayed(LASTFM_USER);
       let dm = `${message.author.username} is a nonce`;
       if (lastPlayed) {
         dm += `\nYour last played song was: **${lastPlayed}**`;
       }
       await message.author.send(dm);
+    } catch {
+      // can't DM if user has DMs disabled
+    }
+  }
+
+  // Send react user their own last played track
+  if (message.author.id === AUTO_REACT_USER) {
+    try {
+      const lastPlayed = await getLastPlayed('activemccracken');
+      if (lastPlayed) {
+        await message.author.send(`Your last played song was: **${lastPlayed}**`);
+      }
     } catch {
       // can't DM if user has DMs disabled
     }
