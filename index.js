@@ -40,12 +40,25 @@ const REACTIONS = [
 const AUTO_MESSAGE_USER = '369952399487664138'; // bot sends a message when this user talks
 const AUTO_REACT_USER   = '696549280525320266'; // bot spams reactions when this user talks
 
+// Specific user + specific message → specific reply
+const TRIGGERED_REPLIES = [
+  { userId: 'USER_ID_HERE', trigger: 'hello', reply: 'Hey there!' },
+  { userId: 'USER_ID_HERE', trigger: 'bad word', reply: 'watch your language' },
+];
+
 client.on('messageCreate', async (message) => {
   if (message.author.bot) return;
 
   // Auto-message for one user
   if (message.author.id === AUTO_MESSAGE_USER) {
     await message.channel.send(`${message.author.username} is a nonce`);
+  }
+
+  // Check triggered replies
+  for (const rule of TRIGGERED_REPLIES) {
+    if (message.author.id === rule.userId && message.content.toLowerCase() === rule.trigger.toLowerCase()) {
+      await message.channel.send(rule.reply);
+    }
   }
 
   // Auto-react for another user
