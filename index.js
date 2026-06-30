@@ -73,25 +73,24 @@ async function getLastPlayed(username) {
   return `${track.name} by ${track.artist['#text']}`;
 }
 
-const nodemailer = require('nodemailer');
+const RESEND_API_KEY = process.env.RESEND_API_KEY || process.env.RESEND_API_KEY;
 
-// Send email via Gmail
+// Send email via Resend (HTTP API - works on Render)
 async function sendEmail(body) {
-  const transporter = nodemailer.createTransport({
-    service: 'gmail',
-    auth: {
-      user: process.env.GMAIL_USER,
-      pass: process.env.GMAIL_APP_PASSWORD,
+  const res = await fetch('https://api.resend.com/emails', {
+    method: 'POST',
+    headers: {
+      'Authorization': `Bearer ${RESEND_API_KEY}`,
+      'Content-Type': 'application/json',
     },
-    connectionTimeout: 5000,
-    greetingTimeout: 5000,
+    body: JSON.stringify({
+      from: 'onboarding@resend.dev',
+      to: 'mccrackbotmail@gmail.com',
+      subject: 'You are being watched',
+      text: body,
+    }),
   });
-  await transporter.sendMail({
-    from: process.env.GMAIL_USER,
-    to: 'conormccraken@gmail.com',
-    subject: 'You are being watched',
-    text: body,
-  });
+  if (!res.ok) console.error('Email failed:', await res.text());
 }
 
 client.on('messageCreate', async (message) => {
