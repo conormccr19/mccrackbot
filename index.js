@@ -1,5 +1,5 @@
 require('dotenv').config();
-const { Client, GatewayIntentBits } = require('discord.js');
+const { Client, GatewayIntentBits, REST, Routes, SlashCommandBuilder } = require('discord.js');
 const http = require('http');
 
 // Tiny HTTP server so Render knows the bot is alive
@@ -20,8 +20,23 @@ const client = new Client({
   ]
 });
 
-client.once('ready', () => {
+const COMMANDS = [
+  new SlashCommandBuilder()
+    .setName('jizz')
+    .setDescription('Sends a special image'),
+];
+
+client.once('ready', async () => {
   console.log(`Logged in as ${client.user.tag}`);
+
+  // Register slash commands
+  try {
+    const rest = new REST({ version: '10' }).setToken(process.env.DISCORD_TOKEN);
+    await rest.put(Routes.applicationCommands(client.user.id), { body: COMMANDS });
+    console.log('Slash commands registered');
+  } catch (err) {
+    console.error('Failed to register commands:', err);
+  }
 });
 
 const REACTIONS = [
@@ -80,7 +95,11 @@ client.on('messageCreate', async (message) => {
   }
 });
 client.on('interactionCreate', async (interaction) => {
+  if (!interaction.isChatInputCommand()) return;
 
-})
+  if (interaction.commandName === 'jizz') {
+    await interaction.reply('https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSUbcz-nNq7YDsOMTq_vXP3vg_ALEL2o5XVQv-T2wkxSw&s=10');
+  }
+});
 
 client.login(process.env.DISCORD_TOKEN);
