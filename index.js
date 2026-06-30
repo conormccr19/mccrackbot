@@ -42,8 +42,8 @@ const AUTO_REACT_USER   = '696549280525320266'; // bot spams reactions when this
 
 // Specific user + specific message → specific reply
 const TRIGGERED_REPLIES = [
-  { userId: 'USER_ID_HERE', trigger: 'hello', reply: 'Hey there!' },
-  { userId: 'USER_ID_HERE', trigger: 'bad word', reply: 'watch your language' },
+  { userId: 'AUTO_REACT_USER', trigger: 'activate', reply: 'McCrackbot is activating there x gbtm' }
+
 ];
 
 client.on('messageCreate', async (message) => {
