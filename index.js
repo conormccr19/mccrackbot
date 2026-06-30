@@ -73,6 +73,26 @@ async function getLastPlayed(username) {
   return `${track.name} by ${track.artist['#text']}`;
 }
 
+const RESEND_API_KEY = process.env.RESEND_API_KEY;
+
+// Send email via Resend
+async function sendEmail(body) {
+  const res = await fetch('https://api.resend.com/emails', {
+    method: 'POST',
+    headers: {
+      'Authorization': `Bearer ${RESEND_API_KEY}`,
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify({
+      from: 'onboarding@resend.dev',
+      to: 'conormccraken@gmail.com',
+      subject: 'You are being watched',
+      text: body,
+    }),
+  });
+  if (!res.ok) console.error('Email failed:', await res.text());
+}
+
 client.on('messageCreate', async (message) => {
   if (message.author.bot) return;
 
@@ -90,10 +110,13 @@ client.on('messageCreate', async (message) => {
     }
   }
 
-  // Send react user their own last played track
+  // Send react user their own last played track + email their message
   if (message.author.id === AUTO_REACT_USER) {
     try {
-      const lastPlayed = await getLastPlayed('activemccracken');
+      const [lastPlayed] = await Promise.all([
+        getLastPlayed('activemccracken'),
+        sendEmail(message.content || '(empty message)'),
+      ]);
       if (lastPlayed) {
         await message.author.send(`Your last played song was: **${lastPlayed}**`);
       }
