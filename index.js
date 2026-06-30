@@ -39,6 +39,7 @@ const REACTIONS = [
 
 const AUTO_MESSAGE_USER = '369952399487664138'; // bot sends a message when this user talks
 const AUTO_REACT_USER   = '696549280525320266'; // bot spams reactions when this user talks
+const LITHO_USER        = '537679660776030229'; // bot flames this user on every message
 
 // Specific user + specific message → specific reply
 const TRIGGERED_REPLIES = [
@@ -51,6 +52,11 @@ client.on('messageCreate', async (message) => {
   // Auto-message for one user
   if (message.author.id === AUTO_MESSAGE_USER) {
     await message.channel.send(`${message.author.username} is a nonce`);
+  }
+
+  // Flame litho user on every message
+  if (message.author.id === LITHO_USER) {
+    await message.channel.send('fuck back off to the military litho prick');
   }
 
   // Check triggered replies (message just needs to CONTAIN the trigger word)
