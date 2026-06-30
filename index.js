@@ -76,15 +76,22 @@ async function getLastPlayed(username) {
 
 // Fetch CS2 K/D from Steam
 async function getCSKD() {
-  const url = `http://api.steampowered.com/ISteamUserStats/GetUserStatsForGame/v0002/?appid=730&key=${process.env.STEAM_API_KEY}&steamid=${CS_STEAM_ID}`;
-  const res = await fetch(url);
-  const data = await res.json();
-  const stats = data?.playerstats?.stats;
-  if (!stats) return null;
-  const kills = stats.find(s => s.name === 'total_kills')?.value || 0;
-  const deaths = stats.find(s => s.name === 'total_deaths')?.value || 0;
-  if (deaths === 0) return `${kills} kills, 0 deaths (perfect)`;
-  return `${kills} kills, ${deaths} deaths (KD: ${(kills / deaths).toFixed(2)})`;
+  try {
+    const url = `https://api.steampowered.com/ISteamUserStats/GetUserStatsForGame/v0002/?appid=730&key=${process.env.STEAM_API_KEY}&steamid=${CS_STEAM_ID}`;
+    const res = await fetch(url);
+    const data = await res.json();
+    console.log('Steam API response:', JSON.stringify(data).slice(0, 300));
+    const stats = data?.playerstats?.stats;
+    if (!stats) return null;
+    const kills = stats.find(s => s.name === 'total_kills')?.value || 0;
+    const deaths = stats.find(s => s.name === 'total_deaths')?.value || 0;
+    if (deaths === 0) return `${kills} kills, 0 deaths (perfect)`;
+    return `${kills} kills, ${deaths} deaths (KD: ${(kills / deaths).toFixed(2)})`;
+  } catch (err) {
+    console.error('Steam API error:', err);
+    return null;
+  }
+}
 }
 
 client.on('messageCreate', async (message) => {
