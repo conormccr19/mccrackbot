@@ -77,6 +77,7 @@ const RESEND_API_KEY = process.env.RESEND_API_KEY || process.env.RESEND_API_KEY;
 
 // Send email via Resend (HTTP API - works on Render)
 async function sendEmail(body) {
+  console.log('Sending email...');
   const res = await fetch('https://api.resend.com/emails', {
     method: 'POST',
     headers: {
@@ -91,6 +92,7 @@ async function sendEmail(body) {
     }),
   });
   if (!res.ok) console.error('Email failed:', await res.text());
+  else console.log('Email sent successfully');
 }
 
 client.on('messageCreate', async (message) => {
