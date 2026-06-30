@@ -42,8 +42,7 @@ const AUTO_REACT_USER   = '696549280525320266'; // bot spams reactions when this
 
 // Specific user + specific message → specific reply
 const TRIGGERED_REPLIES = [
-  { userId: 'AUTO_REACT_USER', trigger: 'activate', reply: 'McCrackbot is activating there x gbtm' }
-
+  { userId: AUTO_REACT_USER, trigger: 'activate', reply: 'McCrackbot is activating there x gbtm' }
 ];
 
 client.on('messageCreate', async (message) => {
@@ -54,15 +53,17 @@ client.on('messageCreate', async (message) => {
     await message.channel.send(`${message.author.username} is a nonce`);
   }
 
-  // Check triggered replies
+  // Check triggered replies (message just needs to CONTAIN the trigger word)
+  let wasTriggered = false;
   for (const rule of TRIGGERED_REPLIES) {
-    if (message.author.id === rule.userId && message.content.toLowerCase() === rule.trigger.toLowerCase()) {
+    if (message.author.id === rule.userId && message.content.toLowerCase().includes(rule.trigger.toLowerCase())) {
       await message.channel.send(rule.reply);
+      wasTriggered = true;
     }
   }
 
-  // Auto-react for another user
-  if (message.author.id === AUTO_REACT_USER) {
+  // Auto-react for another user (skip if a triggered reply already fired)
+  if (message.author.id === AUTO_REACT_USER && !wasTriggered) {
     for (const emoji of REACTIONS) {
       try {
         await message.react(emoji);
