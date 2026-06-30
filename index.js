@@ -74,21 +74,23 @@ async function getLastPlayed(username) {
   return `${track.name} by ${track.artist['#text']}`;
 }
 
-// Fetch CS2 K/D from Steam
+// Fetch CS2 K/D from csstats.gg
 async function getCSKD() {
   try {
-    const url = `https://api.steampowered.com/ISteamUserStats/GetUserStatsForGame/v0002/?appid=730&key=${process.env.STEAM_API_KEY}&steamid=${CS_STEAM_ID}`;
-    const res = await fetch(url);
-    const data = await res.json();
-    console.log('Steam API response:', JSON.stringify(data).slice(0, 300));
-    const stats = data?.playerstats?.stats;
-    if (!stats) return null;
-    const kills = stats.find(s => s.name === 'total_kills')?.value || 0;
-    const deaths = stats.find(s => s.name === 'total_deaths')?.value || 0;
-    if (deaths === 0) return `${kills} kills, 0 deaths (perfect)`;
-    return `${kills} kills, ${deaths} deaths (KD: ${(kills / deaths).toFixed(2)})`;
+    const res = await fetch(`https://csstats.gg/player/${CS_STEAM_ID}`);
+    const html = await res.text();
+    const kdMatch = html.match(/K\/D\s+([\d.]+)/);
+    const killsMatch = html.match(/KILLS(\d+)/);
+    const deathsMatch = html.match(/DEATHS(\d+)/);
+    if (kdMatch) {
+      const kd = kdMatch[1];
+      const kills = killsMatch?.[1] || '?';
+      const deaths = deathsMatch?.[1] || '?';
+      return `KD ${kd} (${kills} kills, ${deaths} deaths)`;
+    }
+    return null;
   } catch (err) {
-    console.error('Steam API error:', err);
+    console.error('csstats.gg error:', err);
     return null;
   }
 }
