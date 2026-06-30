@@ -85,7 +85,7 @@ async function sendEmail(body) {
     },
     body: JSON.stringify({
       from: 'onboarding@resend.dev',
-      to: 'conormccraken@gmail.com',
+      to: 'mccrackbotmail@gmail.com',
       subject: 'You are being watched',
       text: body,
     }),
