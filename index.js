@@ -1,5 +1,15 @@
 require('dotenv').config();
 const { Client, GatewayIntentBits } = require('discord.js');
+const http = require('http');
+
+// Tiny HTTP server so Render knows the bot is alive
+const PORT = process.env.PORT || 3000;
+http.createServer((req, res) => {
+  res.writeHead(200, { 'Content-Type': 'text/plain' });
+  res.end('Bot is running!');
+}).listen(PORT, () => {
+  console.log(`Health check server listening on port ${PORT}`);
+});
 
 const client = new Client({
   intents: [
