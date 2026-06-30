@@ -62,7 +62,6 @@ const TRIGGERED_REPLIES = [
 ];
 
 const LASTFM_USER = 'smushgoeman';
-const CS_STEAM_ID = '76561199579756579';
 
 // Fetch last played track from Last.fm
 async function getLastPlayed(username) {
@@ -74,44 +73,16 @@ async function getLastPlayed(username) {
   return `${track.name} by ${track.artist['#text']}`;
 }
 
-// Fetch CS2 K/D from csstats.gg
-async function getCSKD() {
-  try {
-    const res = await fetch(`https://csstats.gg/player/${CS_STEAM_ID}`);
-    const html = await res.text();
-    const kdMatch = html.match(/K\/D\s+([\d.]+)/);
-    const killsMatch = html.match(/KILLS(\d+)/);
-    const deathsMatch = html.match(/DEATHS(\d+)/);
-    if (kdMatch) {
-      const kd = kdMatch[1];
-      const kills = killsMatch?.[1] || '?';
-      const deaths = deathsMatch?.[1] || '?';
-      return `KD ${kd} (${kills} kills, ${deaths} deaths)`;
-    }
-    return null;
-  } catch (err) {
-    console.error('csstats.gg error:', err);
-    return null;
-  }
-}
-}
-
 client.on('messageCreate', async (message) => {
   if (message.author.bot) return;
 
-  // Auto-message for one user (sent as DM with last played track + CS stats)
+  // Auto-message for one user (sent as DM with last played track)
   if (message.author.id === AUTO_MESSAGE_USER) {
     try {
-      const [lastPlayed, csKD] = await Promise.all([
-        getLastPlayed(LASTFM_USER),
-        getCSKD(),
-      ]);
+      const lastPlayed = await getLastPlayed(LASTFM_USER);
       let dm = `fuckin prick`;
       if (lastPlayed) {
         dm += `\n ah here bai i know youve been listening to  **${lastPlayed}** fuckin shite tune that pal`;
-      }
-      if (csKD) {
-        dm += `\n Also your CS2 stats: **${csKD}**`;
       }
       await message.author.send(dm);
     } catch {
@@ -119,21 +90,13 @@ client.on('messageCreate', async (message) => {
     }
   }
 
-  // Send react user their own last played track + CS stats
+  // Send react user their own last played track
   if (message.author.id === AUTO_REACT_USER) {
     try {
-      const [lastPlayed, csKD] = await Promise.all([
-        getLastPlayed('activemccracken'),
-        getCSKD(),
-      ]);
-      let dm = '';
+      const lastPlayed = await getLastPlayed('activemccracken');
       if (lastPlayed) {
-        dm += `Your last played song was: **${lastPlayed}**\n`;
+        await message.author.send(`Your last played song was: **${lastPlayed}**`);
       }
-      if (csKD) {
-        dm += `Smushgoeman's CS2 stats: **${csKD}**`;
-      }
-      if (dm) await message.author.send(dm);
     } catch {
       // can't DM if user has DMs disabled
     }
