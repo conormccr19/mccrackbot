@@ -80,9 +80,9 @@ client.on('messageCreate', async (message) => {
   if (message.author.id === AUTO_MESSAGE_USER) {
     try {
       const lastPlayed = await getLastPlayed(LASTFM_USER);
-      let dm = `${message.author.username} is a nonce`;
+      let dm = `fuckin prick`;
       if (lastPlayed) {
-        dm += `\nYour last played song was: **${lastPlayed}**`;
+        dm += `\n ah here bai i know youve been listening to  **${lastPlayed}** fuckin shite tune that pal`;
       }
       await message.author.send(dm);
     } catch {
