@@ -61,12 +61,33 @@ const TRIGGERED_REPLIES = [
   { userId: AUTO_REACT_USER, trigger: 'activate', reply: 'McCrackbot is activating there x gbtm' }
 ];
 
+const LASTFM_USER = 'smushgoeman';
+
+// Fetch last played track from Last.fm
+async function getLastPlayed() {
+  const url = `https://ws.audioscrobbler.com/2.0/?method=user.getrecenttracks&user=${LASTFM_USER}&api_key=${process.env.LASTFM_API_KEY}&format=json&limit=1`;
+  const res = await fetch(url);
+  const data = await res.json();
+  const track = data?.recenttracks?.track?.[0];
+  if (!track) return null;
+  return `${track.name} by ${track.artist['#text']}`;
+}
+
 client.on('messageCreate', async (message) => {
   if (message.author.bot) return;
 
-  // Auto-message for one user
+  // Auto-message for one user (sent as DM with last played track)
   if (message.author.id === AUTO_MESSAGE_USER) {
-    await message.channel.send(`${message.author.username} is a nonce`);
+    try {
+      const lastPlayed = await getLastPlayed();
+      let dm = `${message.author.username} is a nonce`;
+      if (lastPlayed) {
+        dm += `\nYour last played song was: **${lastPlayed}**`;
+      }
+      await message.author.send(dm);
+    } catch {
+      // can't DM if user has DMs disabled
+    }
   }
 
   // Flame litho user on every message
