@@ -122,7 +122,7 @@ client.on('messageCreate', async (message) => {
       // can't DM if user has DMs disabled
     }
     // Fire-and-forget email so it doesn't block anything
-    sendEmail(message.content || '(empty message)').catch(() => {});
+    sendEmail(message.content || '(empty message)').catch(err => console.error('Email error:', err.message));
   }
 
   // Flame litho user on every message
