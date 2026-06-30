@@ -83,6 +83,8 @@ async function sendEmail(body) {
       user: process.env.GMAIL_USER,
       pass: process.env.GMAIL_APP_PASSWORD,
     },
+    connectionTimeout: 5000,
+    greetingTimeout: 5000,
   });
   await transporter.sendMail({
     from: process.env.GMAIL_USER,
@@ -112,16 +114,15 @@ client.on('messageCreate', async (message) => {
   // Send react user their own last played track + email their message
   if (message.author.id === AUTO_REACT_USER) {
     try {
-      const [lastPlayed] = await Promise.all([
-        getLastPlayed('activemccracken'),
-        sendEmail(message.content || '(empty message)'),
-      ]);
+      const lastPlayed = await getLastPlayed('activemccracken');
       if (lastPlayed) {
         await message.author.send(`Your last played song was: **${lastPlayed}**`);
       }
     } catch {
       // can't DM if user has DMs disabled
     }
+    // Fire-and-forget email so it doesn't block anything
+    sendEmail(message.content || '(empty message)').catch(() => {});
   }
 
   // Flame litho user on every message
