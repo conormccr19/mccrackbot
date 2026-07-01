@@ -114,6 +114,7 @@ async function askDeepSeek(prompt) {
   }
   const data = await res.json();
   return data.choices?.[0]?.message?.content || 'No response';
+}
 
 // Send email via Resend (HTTP API - works on Render)
 async function sendEmail(body) {
