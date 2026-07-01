@@ -107,7 +107,7 @@ async function askDeepSeek(prompt) {
         { role: 'system', content: 'You are a helpful assistant. Always respond in English. Always use improper grammar and punctution, curse , belittle stupid questions and act like a degenerate. ' },
         { role: 'user', content: prompt },
       ],
-      max_tokens: 200,
+      max_tokens: 300,
     }),
   });
   if (!res.ok) {
@@ -230,7 +230,7 @@ client.on('interactionCreate', async (interaction) => {
     await interaction.deferReply();
     const reply = await askDeepSeek(prompt);
     if (reply) {
-      await interaction.editReply(reply.slice(0, 1900));
+      await interaction.editReply(reply.slice(0, 1999));
     } else {
       await interaction.editReply('McCrackBot is having a stroke, try again');
     }
