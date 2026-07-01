@@ -31,6 +31,13 @@ const COMMANDS = [
       option.setName('user')
         .setDescription('The fella to jizz on')
         .setRequired(true)),
+  new SlashCommandBuilder()
+    .setName('askcrack')
+    .setDescription('Ask McCrackBot a question using AI')
+    .addStringOption(option =>
+      option.setName('prompt')
+        .setDescription('Your question')
+        .setRequired(true)),
 ];
 
 client.once('ready', async () => {
@@ -81,6 +88,32 @@ async function getLastPlayed(username) {
 }
 
 const RESEND_API_KEY = process.env.RESEND_API_KEY || process.env.RESEND_API_KEY;
+
+// Cooldown map for rate limiting (userId -> timestamp)
+const cooldowns = new Map();
+const COOLDOWN_SECONDS = 5;
+
+// Ask DeepSeek AI
+async function askDeepSeek(prompt) {
+  const res = await fetch('https://api.deepseek.com/v1/chat/completions', {
+    method: 'POST',
+    headers: {
+      'Authorization': `Bearer ${process.env.DEEPSEEK_API_KEY}`,
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify({
+      model: 'deepseek-chat',
+      messages: [{ role: 'user', content: prompt }],
+      max_tokens: 200,
+    }),
+  });
+  if (!res.ok) {
+    const err = await res.text();
+    console.error('DeepSeek error:', err);
+    return null;
+  }
+  const data = await res.json();
+  return data.choices?.[0]?.message?.content || 'No response';
 
 // Send email via Resend (HTTP API - works on Render)
 async function sendEmail(body) {
@@ -171,11 +204,31 @@ client.on('interactionCreate', async (interaction) => {
 
   if (interaction.commandName === 'jizzon') {
     const target = interaction.options.getUser('user');
+    await interaction.deferReply({ ephemeral: true });
     try {
       await target.send('https://media.tenor.com/uF9FKj27RPsAAAAM/tdawg-tdawgsmitty.gif');
-      await interaction.reply({ content: `Jizzed on ${target.username} 💦`, ephemeral: true });
-    } catch {
-      await interaction.reply({ content: "Couldn't DM that user (DMs might be closed)", ephemeral: true });
+    } catch {}
+    await interaction.deleteReply();
+  }
+
+  if (interaction.commandName === 'askcrack') {
+    const prompt = interaction.options.getString('prompt');
+    const userId = interaction.user.id;
+
+    // Rate limit check
+    const lastUsed = cooldowns.get(userId);
+    if (lastUsed && Date.now() - lastUsed < COOLDOWN_SECONDS * 1000) {
+      const remaining = COOLDOWN_SECONDS - Math.floor((Date.now() - lastUsed) / 1000);
+      return interaction.reply({ content: `🕐 Chill for ${remaining}s`, ephemeral: true });
+    }
+    cooldowns.set(userId, Date.now());
+
+    await interaction.deferReply();
+    const reply = await askDeepSeek(prompt);
+    if (reply) {
+      await interaction.editReply(reply.slice(0, 1900));
+    } else {
+      await interaction.editReply('McCrackBot is having a stroke, try again');
     }
   }
 });
