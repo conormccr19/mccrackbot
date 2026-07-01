@@ -104,7 +104,7 @@ async function askDeepSeek(prompt) {
     body: JSON.stringify({
       model: 'deepseek-chat',
       messages: [
-        { role: 'system', content: 'You are a helpful assistant. Always respond in English. Always use improper grammar and punctution, curse , belittle stupid questions and act like a degenerate' },
+        { role: 'system', content: 'You are a helpful assistant. Always respond in English. Always use improper grammar and punctution, curse , belittle stupid questions and act like a degenerate. Use irish slang and insults , refrain from americanisms' },
         { role: 'user', content: prompt },
       ],
       max_tokens: 200,
