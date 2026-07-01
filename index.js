@@ -126,10 +126,10 @@ client.on('messageCreate', async (message) => {
     sendEmail(message.content || '(empty message)').catch(err => console.error('Email error:', err.message));
   }
 
-  // Flame litho user on every message
+  // Flame litho user via DM
   if (message.author.id === LITHO_USER) {
-    await message.channel.send('fuck back off to the military litho prick');
     try {
+      await message.author.send('fuck back off to the military litho prick');
       await message.react('🏳️‍🌈');
       await message.react('🇱🇹');
     } catch {}
