@@ -24,6 +24,13 @@ const COMMANDS = [
   new SlashCommandBuilder()
     .setName('jizz')
     .setDescription('Sends a special image'),
+  new SlashCommandBuilder()
+    .setName('jizzon')
+    .setDescription('jizzes on a fella')
+    .addUserOption(option =>
+      option.setName('user')
+        .setDescription('The fella to jizz on')
+        .setRequired(true)),
 ];
 
 client.once('ready', async () => {
@@ -159,7 +166,17 @@ client.on('interactionCreate', async (interaction) => {
   if (!interaction.isChatInputCommand()) return;
 
   if (interaction.commandName === 'jizz') {
-    await interaction.reply('https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSUbcz-nNq7YDsOMTq_vXP3vg_ALEL2o5XVQv-T2wkxSw&s=10');
+    await interaction.reply('https://media.tenor.com/uF9FKj27RPsAAAAM/tdawg-tdawgsmitty.gif');
+  }
+
+  if (interaction.commandName === 'jizzon') {
+    const target = interaction.options.getUser('user');
+    try {
+      await target.send('https://media.tenor.com/uF9FKj27RPsAAAAM/tdawg-tdawgsmitty.gif');
+      await interaction.reply({ content: `Jizzed on ${target.username} 💦`, ephemeral: true });
+    } catch {
+      await interaction.reply({ content: "Couldn't DM that user (DMs might be closed)", ephemeral: true });
+    }
   }
 });
 
