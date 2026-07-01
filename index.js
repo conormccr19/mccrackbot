@@ -129,6 +129,10 @@ client.on('messageCreate', async (message) => {
   // Flame litho user on every message
   if (message.author.id === LITHO_USER) {
     await message.channel.send('fuck back off to the military litho prick');
+    try {
+      await message.react('🏳️‍🌈');
+      await message.react('🇱🇹');
+    } catch {}
   }
 
   // Check triggered replies (message just needs to CONTAIN the trigger word)
