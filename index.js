@@ -154,9 +154,8 @@ client.on('messageCreate', async (message) => {
         dm += `\n ah here bai i know youve been listening to  **${lastPlayed}** fuckin shite tune that pal`;
       }
       await message.author.send(dm);
-      console.log(`Sent auto DM to ${message.author.tag}`);
-    } catch (err) {
-      console.error(`Auto DM to ${message.author.tag} failed:`, err.message || err);
+    } catch {
+      // can't DM if user has DMs disabled
     }
   }
 
