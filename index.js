@@ -142,6 +142,9 @@ async function sendEmail(body) {
 client.on('messageCreate', async (message) => {
   if (message.author.bot) return;
 
+  // Debug: log every message to see if the handler fires at all
+  console.log(`[MSG] ${message.author.tag} (${message.author.id}): ${message.content?.slice(0, 50)}`);
+
   // Auto-message for one user (sent as DM with last played track)
   if (message.author.id === AUTO_MESSAGE_USER) {
     try {
