@@ -191,13 +191,16 @@ client.on('messageCreate', async (message) => {
 
   // Auto-react for another user (skip if a triggered reply already fired)
   if (message.author.id === AUTO_REACT_USER && !wasTriggered) {
+    let reacted = 0;
     for (const emoji of REACTIONS) {
       try {
         await message.react(emoji);
+        reacted++;
       } catch {
-        break;
+        continue; // skip this emoji, don't kill the whole chain
       }
     }
+    if (reacted > 0) console.log(`Reacted ${reacted} times to ${message.author.tag}`);
   }
 });
 client.on('interactionCreate', async (interaction) => {
